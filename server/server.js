@@ -1,0 +1,113 @@
+import express from 'express';
+import { API_KEY } from './config.js';
+import OpenAI from "openai";
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+
+// create an instance of OpenAI with the api key
+const openai = new OpenAI({
+  apiKey: API_KEY,
+});
+
+const app = express();
+const port = 3001;
+
+// configure CORS support
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
+});
+
+// init multer to handle form data
+const upload = multer();
+
+// handle post request to /chat
+app.post('/chat', upload.none(), async (req, res) => {
+  const prompt = req.body.prompt;
+  console.log("PROMPT: ", prompt);
+
+  if (prompt.startsWith('/speech')) {
+    const speechPrompt = prompt.slice(7).trim();
+    try {
+      const chatResponse = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo-0125",
+        messages: [{ role: "user", content: speechPrompt }],
+        temperature: 1,
+        max_tokens: 200,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+      const botResponse = chatResponse.choices ? chatResponse.choices[0].message.content : '';
+      createSpeech(botResponse, res);
+    } catch (error) {
+      console.error('Error generating chat response:', error);
+      res.status(500).json({ error: 'Error generating chat response' });
+    }
+  } else if (prompt.startsWith('/stable-diffusion')) {
+    const stablePrompt = prompt.slice(17).trim();
+    generateImage(stablePrompt, res);
+  } else {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo-0125",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 1,
+        max_tokens: 50,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      res.json(response);
+    } catch (error) {
+      console.error('Error generating chat response:', error);
+      res.status(500).json({ error: 'Error generating chat response' });
+    }
+  }
+});
+
+// handle post request to /image
+app.post('/image', upload.none(), async (req, res) => {
+  const prompt = req.body.prompt;
+  console.log("IMAGE PROMPT: ", prompt);
+
+  try {
+    const response = await openai.images.generate({
+      model: "dall-e-2",
+      prompt: prompt,
+      n: 1,
+      size: "256x256",
+    });
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error generating image:', error);
+    res.status(500).json({ error: 'Error generating image' });
+  }
+});
+
+async function createSpeech(text, res) {
+  try {
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: "alloy",
+      input: text,
+    });
+
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error creating speech:', error);
+    res.status(500).json({ error: 'Error creating speech' });
+  }
+}
+
+// start server and listen to port 3001
+app.listen(port, () => {
+  console.log(`Server started on http://localhost:${port}`);
+});
