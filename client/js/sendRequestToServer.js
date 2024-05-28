@@ -32,7 +32,7 @@ async function getMessage() {
 
   // Create and append user message
   const userMessage = document.createElement('p');
-  userMessage.textContent = prompt;
+  userMessage.textContent = "User: " + prompt;
   userMessage.classList.add('user-message');
   chatContainer.append(userMessage);
 
@@ -66,10 +66,12 @@ async function getMessage() {
     // Get and append bot response
     const response = await getResponseFromServer(prompt);
     if (response) {
-      const botMessage = document.createElement('p');
-      botMessage.textContent = response;
-      botMessage.classList.add('bot-message');
-      chatContainer.append(botMessage);
+      // Simulate chatbot response
+      const chatbotMessage = document.createElement('p');
+      const response = await getResponseFromServer(prompt);
+      chatbotMessage.textContent = "Chatbot: " + response;
+      chatbotMessage.classList.add('chatbot-message');
+      chatContainer.append(chatbotMessage);
     }
   }
 
