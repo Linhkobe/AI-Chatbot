@@ -38,13 +38,6 @@ async function getMessage() {
 
   inputElement.value = '';
 
-/*   const userMessage = document.createElement('p');
-  userMessage.textContent = prompt;
-  userMessage.onclick = () => {
-    inputElement.value = userMessage.textContent;
-  };
-  historyElement.append(userMessage); */
-
   if (prompt.startsWith('/image')) {
     const imagePrompt = prompt.slice(6).trim();
     const images = await getImageFromDallE(imagePrompt);
@@ -56,26 +49,14 @@ async function getMessage() {
       imgElement.width = 256;
       imgElement.height = 256;
       imageContainer.append(imgElement);
-      outputElement.append(imageContainer);
+      chatContainer.append(imageContainer); // Append image to chat container
     });
   } else {
-/*     const response = await getResponseFromServer(prompt);
-    if (response) {
-      createChatItem('bot', response);
-    } */
-    // Get and append bot response
     const response = await getResponseFromServer(prompt);
     if (response) {
-      // Simulate chatbot response
-      const chatbotMessage = document.createElement('p');
-      const response = await getResponseFromServer(prompt);
-      chatbotMessage.textContent = "Chatbot: " + response;
-      chatbotMessage.classList.add('chatbot-message');
-      chatContainer.append(chatbotMessage);
+      createChatItem('bot', response);
     }
   }
-
-  inputElement.value = '';
 }
 
 async function getResponseFromServer(prompt) {
@@ -91,14 +72,17 @@ async function getResponseFromServer(prompt) {
     if (!response.ok) {
       throw new Error(`Server error: ${response.status}`);
     }
+
     if (prompt.startsWith('/speech')) {
       const audio = await response.blob();
       const audioUrl = URL.createObjectURL(audio);
       const audioElement = document.createElement('audio');
       audioElement.controls = true;
       audioElement.src = audioUrl;
-      outputElement.innerHTML = ''; // Clear the output element
-      outputElement.appendChild(audioElement); // Append the audio player to the output element
+      const audioContainer = document.createElement('div');
+      audioContainer.classList.add('audio-container');
+      audioContainer.appendChild(audioElement);
+      chatContainer.append(audioContainer); // Append audio player to chat container
       return; // No text response to return
     }
 
