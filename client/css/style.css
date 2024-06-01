@@ -155,4 +155,11 @@ nav {
     display: flex;
     align-items: right;
 }
+.chatbot {
+    text-align: left;
+    margin: 10px 0;
+    max-width: 100%; 
+    background-color: lightblue;
+    border-radius: 10px;
+}
 
