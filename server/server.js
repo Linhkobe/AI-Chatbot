@@ -36,7 +36,7 @@ app.post('/chat', upload.none(), async (req, res) => {
         model: "gpt-3.5-turbo-0125",
         messages: [{ role: "user", content: speechPrompt }],
         temperature: 1,
-        max_tokens: 200,
+        max_tokens: 500,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,

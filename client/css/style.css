@@ -128,6 +128,7 @@ nav {
     background-color: lightpink;
     color:black;
     border-radius: 10px;
+    padding: 10px;
 }
 
 .chatbot {
@@ -137,5 +138,22 @@ nav {
     background-color: lightblue;
     border-radius: 10px;
     color: black;
+    padding: 10px;
+}
+.message.image-message {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    width: 100%;
+}
+.message.image-message img {
+    width: 100%;
+    height: auto;
+}
+.audio-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
 }
 

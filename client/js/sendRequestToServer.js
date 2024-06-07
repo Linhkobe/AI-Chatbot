@@ -37,8 +37,7 @@ window.showChat = function showChat(chatId) {
             if (message.type === 'image') {
                 const imgElement = document.createElement('img');
                 imgElement.src = message.content;
-                imgElement.width = 256;
-                imgElement.height = 256;
+                messageDiv.classList.add('image-message');
                 messageDiv.appendChild(imgElement);
             } else if (message.type === 'audio') {
                 messageDiv.innerHTML = message.content;
@@ -161,8 +160,7 @@ function appendMessage(message) {
   if (message.type === 'image') {
       const imgElement = document.createElement('img');
       imgElement.src = message.content;
-      imgElement.width = 256;
-      imgElement.height = 256;
+      messageDiv.classList.add('image-message');
       messageDiv.appendChild(imgElement);
   } else if (message.type === 'audio') {
       messageDiv.innerHTML = message.content;
