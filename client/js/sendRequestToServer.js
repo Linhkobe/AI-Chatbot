@@ -62,6 +62,11 @@ function init() {
     submitButton.onclick = getMessage;
 
     inputElement = document.querySelector('input');
+    inputElement.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            getMessage();
+        }
+    }); 
     historyElement = document.querySelector('.history');
     chatContainer = document.querySelector('.chat-container');
 
