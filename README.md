@@ -55,7 +55,7 @@ et puis les deux commandes ci-dessous respectivement
 ```ruby
 npm install
 ```
--------------
+
 ```ruby
 npm start
 ```
