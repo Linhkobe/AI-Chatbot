@@ -27,7 +27,7 @@ window.newChat = function() {
 
 window.showChat = function showChat(chatId) {
     const chatSession = chatSessions.find(session => session.id === chatId);
-    console.log(chatId);
+    console.log("Current chat session ID:", chatId);
 
     if (chatSession) {
         chatContainer.innerHTML = '';
@@ -90,6 +90,17 @@ async function getMessage() {
                 chatSession.messages.push(imageMessage);
                 appendMessage(imageMessage);
             });
+        } else if (prompt.startsWith('/stable')) {
+            const stablePrompt = prompt.slice(8).trim();
+            console.log("Sending request to Stable Diffusion with prompt:", stablePrompt);
+            const response = await getStableDiffusionResponse(stablePrompt);
+            console.log("Stable Diffusion response received:", response);
+            if (response && response.url) {
+                const imageMessage = { sender: 'bot', content: response.url, type: 'image' };
+                console.log("Stable Diffusion image URL:", response.url);
+                chatSession.messages.push(imageMessage);
+                appendMessage(imageMessage);
+            }
         } else if (prompt.startsWith('/speech')) {
             const response = await getResponseFromServer(prompt);
             if (response) {
@@ -107,7 +118,6 @@ async function getMessage() {
         }
     }
 }
-
 async function getResponseFromServer(prompt) {
     try {
         const formData = new FormData();
@@ -130,6 +140,32 @@ async function getResponseFromServer(prompt) {
 
         const data = await response.json();
         return data.choices ? data.choices[0].message.content : '';
+    } catch (error) {
+        console.error('Error:', error);
+        return 'Sorry, something went wrong. Please try again.';
+    }
+}
+
+async function getStableDiffusionResponse(prompt) {
+    try {
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+
+        console.log("Sending request to /stable endpoint with prompt:", prompt);
+        const response = await fetch('http://localhost:3001/stable', {
+            method: 'POST',
+            body: formData,
+        });
+
+        console.log("Received response from /stable endpoint:", response);
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Stable Diffusion data:", data);
+        return data; // Ensure that this is an object with an 'url' property
     } catch (error) {
         console.error('Error:', error);
         return 'Sorry, something went wrong. Please try again.';

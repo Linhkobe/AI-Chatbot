@@ -1,9 +1,11 @@
 import express from 'express';
-import { API_KEY } from './config.js';
+import { API_KEY, HUGGING_FACE_API_KEY } from './config.js';
 import OpenAI from "openai";
 import multer from 'multer';
+import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 // create an instance of OpenAI with the api key
 const openai = new OpenAI({
@@ -23,6 +25,10 @@ app.use((req, res, next) => {
 
 // init multer to handle form data
 const upload = multer();
+
+// Get current directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // handle post request to /chat
 app.post('/chat', upload.none(), async (req, res) => {
@@ -47,9 +53,9 @@ app.post('/chat', upload.none(), async (req, res) => {
       console.error('Error generating chat response:', error);
       res.status(500).json({ error: 'Error generating chat response' });
     }
-  } else if (prompt.startsWith('/stable-diffusion')) {
-    const stablePrompt = prompt.slice(17).trim();
-    generateImage(stablePrompt, res);
+  } else if (prompt.startsWith('/stable')) {
+    const stablePrompt = prompt.slice(8).trim();
+    generateStableDiffusionImage(stablePrompt, res);
   } else {
     try {
       const response = await openai.chat.completions.create({
@@ -87,6 +93,42 @@ app.post('/image', upload.none(), async (req, res) => {
   } catch (error) {
     console.error('Error generating image:', error);
     res.status(500).json({ error: 'Error generating image' });
+  }
+});
+
+// handle post request to /stable
+app.post('/stable', upload.none(), async (req, res) => {
+  const prompt = req.body.prompt;
+  console.log("STABLE DIFFUSION PROMPT: ", prompt);
+
+  try {
+    const response = await fetch('https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HUGGING_FACE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputs: prompt })
+    });
+
+    console.log("Stable Diffusion API response status:", response.status);
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error('Error from Stable Diffusion API:', errorMessage);
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const imageBuffer = await response.buffer();
+    const base64Image = imageBuffer.toString('base64');
+    const imageUrl = `data:image/png;base64,${base64Image}`;
+
+    console.log("Image URL:", imageUrl);
+
+    res.json({ url: imageUrl });
+  } catch (error) {
+    console.error('Error generating stable diffusion image:', error);
+    res.status(500).json({ error: 'Error generating stable diffusion image' });
   }
 });
 

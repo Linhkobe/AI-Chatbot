@@ -8,3 +8,4 @@
 // set OPENAI_API_KEY="votre_clé_api"
 
 export const API_KEY = process.env.OPENAI_API_KEY;
+export const HUGGING_FACE_API_KEY = process.env.HUGGING_FACE_API_KEY;

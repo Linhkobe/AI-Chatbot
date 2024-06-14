@@ -1,20 +1,21 @@
-import { API_KEY } from './config.js';
-import OpenAI from 'openai';
+require('dotenv').config();
 
-const openai = new OpenAI({ apiKey: API_KEY });
+const apiKey = process.env.HUGGING_FACE_API_KEY;
 
-export async function generateImage(prompt, res) {
-  try {
-    const response = await openai.images.generate({
-      model: "stable-diffusion",
-      prompt: prompt,
-      n: 1,
-      size: "256x256",
+export async function getStableDiffusionImage(prompt) {
+    const response = await fetch('https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ inputs: prompt })
     });
 
-    res.json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error generating image');
-  }
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data; // Ensure that this is an array of image URLs
 }
