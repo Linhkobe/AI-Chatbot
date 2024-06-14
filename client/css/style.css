@@ -51,7 +51,7 @@ body {
     flex-direction: column;
     justify-content: flex-end;
     overflow: hidden;
-    background-color:rgba(255, 235, 205, 0.5);
+    background-color: rgba(255, 235, 205, 0.5);
 }
 
 .chat-container {
@@ -65,7 +65,7 @@ body {
     display: flex;
     width: 100%;
     padding: 10px;
-    background-color:#c62368;
+    background-color: #c62368;
     border-top: 1px solid #fff;
     align-items: center;
 }
@@ -79,8 +79,8 @@ select {
     margin-right: 10px;
     cursor: pointer;
     color: black;
-    appearance: none; /* Remove default dropdown arrow */
-    -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
+    appearance: none; 
+    -webkit-appearance: none; 
     position: relative;
     width: auto;
 }
@@ -95,7 +95,7 @@ select option {
 }
 
 select::after {
-    content: '\25BC'; /* Unicode character for down arrow */
+    content: '\25BC'; 
     position: absolute;
     top: 50%;
     right: 15px;
@@ -131,6 +131,10 @@ button {
     margin: 10px;
 }
 
+button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 nav {
     border: solid 0.5px rgba(255, 255, 255, 0.5);
     padding: 10px;
@@ -159,33 +163,60 @@ nav {
     margin: 10px 0;
     width: 70%;
     background-color: lightpink;
-    color:black;
+    color: black;
     border-radius: 10px;
     padding: 10px;
 }
 
-.chatbot {
+.bot-message {
     text-align: left;
     margin: 10px 0;
-    max-width: 100%; 
+    width: 70%;
     background-color: lightblue;
     border-radius: 10px;
     color: black;
     padding: 10px;
+    align-self: flex-end; 
+    margin-left: auto; 
 }
+
+.bot-special-message {
+    text-align: left; 
+    margin: 10px 0;
+    width: 70%;
+    border-radius: 10px;
+    color: black;
+    padding: 10px;
+    align-self: flex-end; 
+    margin-left: auto; 
+}
+
 .message.image-message {
     display: flex; 
-    justify-content: center; 
+    justify-content: flex-end; 
     align-items: center; 
-    text-align: center; 
-    width: 100%;
+    text-align: right; 
+    width: 70%;
+    margin-left: auto; 
+    background-color: transparent;
 }
+
 .message.image-message img {
     width: 100%;
     height: auto;
 }
+
 .audio-container {
     display: flex;
     justify-content: flex-end;
     padding: 10px;
+    margin-left: auto; 
+    width: 100%; 
+    align-items: center;
+    text-align: right;
+    background-color: transparent;
+}
+
+.audio-container audio {
+    width: 70%; 
 }

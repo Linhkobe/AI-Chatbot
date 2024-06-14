@@ -8,48 +8,32 @@ let currentChatId = null;
 let chatSessions = [];
 
 window.onload = init;
+
 window.newChat = function() {
     chatCounter++;
-    currentChatId = 'chat' + chatCounter;
+    const newChatId = 'chat' + chatCounter; 
+    currentChatId = newChatId;
 
-    chatSessions.push({ id: currentChatId, messages: [] });
+    chatSessions.push({ id: newChatId, messages: [] });
 
     const chatButton = document.createElement('button');
     chatButton.className = 'chat-button'; 
-    chatButton.id = currentChatId + '-button';
-    chatButton.onclick = () => showChat(currentChatId);
+    chatButton.id = newChatId + '-button';
+    chatButton.onclick = () => showChat(newChatId); 
     chatButton.innerText = 'Chat ' + chatCounter;
     document.getElementById('chat-buttons-container').appendChild(chatButton);
     chatContainer.innerHTML = '';
 }
+
 window.showChat = function showChat(chatId) {
-    
     const chatSession = chatSessions.find(session => session.id === chatId);
+    console.log(chatId);
 
     if (chatSession) {
-        
         chatContainer.innerHTML = '';
 
         chatSession.messages.forEach(message => {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', message.sender);
-
-            if (message.type === 'image') {
-                const imgElement = document.createElement('img');
-                imgElement.src = message.content;
-                messageDiv.classList.add('image-message');
-                messageDiv.appendChild(imgElement);
-            } else if (message.type === 'audio') {
-                messageDiv.innerHTML = message.content;
-            } else {
-                if (message.sender === 'user') {
-                    messageDiv.textContent = "User: " + message.content;
-                } else {
-                    messageDiv.textContent = message.content;
-                }
-            }
-
-            chatContainer.appendChild(messageDiv);
+            appendMessage(message);
         });
 
         currentChatId = chatId;
@@ -87,7 +71,7 @@ async function getMessage() {
     const chatSession = chatSessions.find(session => session.id === currentChatId);
 
     if (chatSession) {
-        const userMessage = { sender: 'user', content: prompt };
+        const userMessage = { sender: 'user', content: `You: ${prompt}`, type: 'text' };
         chatSession.messages.push(userMessage);
         appendMessage(userMessage);
 
@@ -106,10 +90,17 @@ async function getMessage() {
                 chatSession.messages.push(imageMessage);
                 appendMessage(imageMessage);
             });
+        } else if (prompt.startsWith('/speech')) {
+            const response = await getResponseFromServer(prompt);
+            if (response) {
+                const audioMessage = { sender: 'bot', content: response, type: 'audio' };
+                chatSession.messages.push(audioMessage);
+                appendMessage(audioMessage);
+            }
         } else {
             const response = await getResponseFromServer(prompt);
             if (response) {
-                const botMessage = { sender: 'bot', content: response };
+                const botMessage = { sender: 'bot', content: response, type: 'text' };
                 chatSession.messages.push(botMessage);
                 appendMessage(botMessage);
             }
@@ -134,22 +125,11 @@ async function getResponseFromServer(prompt) {
         if (prompt.startsWith('/speech')) {
             const audio = await response.blob();
             const audioUrl = URL.createObjectURL(audio);
-            const audioElement = document.createElement('audio');
-            audioElement.controls = true;
-            audioElement.src = audioUrl;
-            const audioContainer = document.createElement('div');
-            audioContainer.classList.add('audio-container');
-            audioContainer.appendChild(audioElement);
-            appendMessage({ sender: 'bot', content: audioContainer.outerHTML, type: 'audio' });
-            return;
+            return audioUrl;
         }
 
         const data = await response.json();
-        const botResponse = data.choices ? data.choices[0].message.content : '';
-
-        if (botResponse) {
-        createChatItem('bot', botResponse, 'chatbot');
-        }
+        return data.choices ? data.choices[0].message.content : '';
     } catch (error) {
         console.error('Error:', error);
         return 'Sorry, something went wrong. Please try again.';
@@ -157,51 +137,34 @@ async function getResponseFromServer(prompt) {
 }
 
 function appendMessage(message) {
-  const messageDiv = document.createElement('div');
-  messageDiv.classList.add('message', message.sender);
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', message.sender);
 
-  const contentDiv = document.createElement('div');
-  contentDiv.classList.add('content');
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('content');
+    messageDiv.appendChild(contentDiv);
 
-  if (message.sender === 'user') {
-      messageDiv.classList.add('user-message');
-  } else if (message.sender === 'chatbot' && message.type === 'text') {
-    messageDiv.classList.add('chatbot');
-  }
-
-  if (message.type === 'image') {
-      const imgElement = document.createElement('img');
-      imgElement.src = message.content;
-      messageDiv.classList.add('image-message');
-      messageDiv.appendChild(imgElement);
-  } else if (message.type === 'audio') {
-      messageDiv.innerHTML = message.content;
-  } else {
-      if (message.sender === 'user') {
-          messageDiv.textContent = "User: " + message.content;
-      } else {
-          messageDiv.textContent = message.content;
-      }
-  }
-
-  chatContainer.appendChild(messageDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function createChatItem(sender, content, className) {
-    const chatItem = document.createElement('div');
-    chatItem.classList.add('chat-item', sender);
-  
-    if (className) {
-      chatItem.classList.add(className);
+    if (message.sender === 'user') {
+        messageDiv.classList.add('user-message');
+    } else if (message.sender === 'bot') {
+        messageDiv.classList.add('bot-message');
     }
-  
-    const chatContent = document.createElement('div');
-    chatContent.classList.add('content');
-    chatContent.textContent = content;
-  
-    chatItem.appendChild(chatContent);
-    chatContainer.appendChild(chatItem);
-  
+
+    if (message.type === 'image') {
+        const imgElement = document.createElement('img');
+        imgElement.src = message.content;
+        messageDiv.classList.add('image-message');
+        messageDiv.appendChild(imgElement);
+    } else if (message.type === 'audio') {
+        const audioElement = document.createElement('audio');
+        audioElement.controls = true;
+        audioElement.src = message.content;
+        messageDiv.classList.add('audio-container');
+        messageDiv.appendChild(audioElement);
+    } else {
+        contentDiv.textContent = message.content;
+    }
+
+    chatContainer.appendChild(messageDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
+}
