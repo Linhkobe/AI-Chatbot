@@ -53,7 +53,7 @@ app.post('/chat', upload.none(), async (req, res) => {
       console.error('Error generating chat response:', error);
       res.status(500).json({ error: 'Error generating chat response' });
     }
-  } else if (prompt.startsWith('/stable')) {
+  } else if (prompt.startsWith('/stable-diffusion')) {
     const stablePrompt = prompt.slice(8).trim();
     generateStableDiffusionImage(stablePrompt, res);
   } else {
@@ -97,7 +97,7 @@ app.post('/image', upload.none(), async (req, res) => {
 });
 
 // handle post request to /stable
-app.post('/stable', upload.none(), async (req, res) => {
+app.post('/stable-diffusion', upload.none(), async (req, res) => {
   const prompt = req.body.prompt;
   console.log("STABLE DIFFUSION PROMPT: ", prompt);
 

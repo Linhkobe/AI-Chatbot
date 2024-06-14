@@ -90,7 +90,7 @@ async function getMessage() {
                 chatSession.messages.push(imageMessage);
                 appendMessage(imageMessage);
             });
-        } else if (prompt.startsWith('/stable')) {
+        } else if (prompt.startsWith('/stable-diffusion')) {
             const stablePrompt = prompt.slice(8).trim();
             console.log("Sending request to Stable Diffusion with prompt:", stablePrompt);
             const response = await getStableDiffusionResponse(stablePrompt);
@@ -151,13 +151,13 @@ async function getStableDiffusionResponse(prompt) {
         const formData = new FormData();
         formData.append('prompt', prompt);
 
-        console.log("Sending request to /stable endpoint with prompt:", prompt);
-        const response = await fetch('http://localhost:3001/stable', {
+        console.log("Sending request to /stable-diffusion endpoint with prompt:", prompt);
+        const response = await fetch('http://localhost:3001/stable-diffusion', {
             method: 'POST',
             body: formData,
         });
 
-        console.log("Received response from /stable endpoint:", response);
+        console.log("Received response from /stable-diffusion endpoint:", response);
 
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
