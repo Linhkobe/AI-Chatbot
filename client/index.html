@@ -19,10 +19,14 @@
     <section class="main">
         <div class="chat-frame">
             <div class="chat-container" id="chat-container">
-                
             </div>
-            
             <div class="input-container">
+                <select id="input-type">
+                    <option value="none">Normal prompt</option>
+                    <option value="/image">Image</option>
+                    <option value="/speech">Speech</option>
+                    <option value="/stable">Stable Diffusion</option>
+                </select>
                 <input id="user-input">
                 <div id="submit">➢</div>
             </div>
@@ -31,4 +35,3 @@
 </body>
 
 </html>
-

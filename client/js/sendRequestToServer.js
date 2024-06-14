@@ -2,7 +2,7 @@ import { getImageFromDallE } from './dallE.js';
 
 const endpointURL = 'http://localhost:3001/chat';
 
-let outputElement, submitButton, inputElement, historyElement, chatContainer;
+let outputElement, submitButton, inputElement, historyElement, chatContainer, inputTypeElement;
 let chatCounter = 0;
 let currentChatId = null;
 let chatSessions = [];
@@ -62,6 +62,7 @@ function init() {
     submitButton.onclick = getMessage;
 
     inputElement = document.querySelector('input');
+    inputTypeElement = document.querySelector('#input-type');
     inputElement.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             getMessage();
@@ -75,7 +76,13 @@ function init() {
 
 async function getMessage() {
     let prompt = inputElement.value.trim();
+    let selectedOption = inputTypeElement.value;
+
     if (!prompt) return;
+
+    if (selectedOption !== 'none') {
+        prompt = `${selectedOption} ${prompt}`;
+    }
 
     const chatSession = chatSessions.find(session => session.id === currentChatId);
 

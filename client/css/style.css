@@ -70,6 +70,39 @@ body {
     align-items: center;
 }
 
+select {
+    border: none;
+    background-color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-right: 10px;
+    cursor: pointer;
+    color: black;
+    appearance: none; /* Remove default dropdown arrow */
+    -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
+    position: relative;
+    width: auto;
+}
+
+select:focus {
+    outline: none;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+select option {
+    color: black;
+}
+
+select::after {
+    content: '\25BC'; /* Unicode character for down arrow */
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
 input {
     border: none;
     background-color: rgba(255, 255, 255, 0.5);
@@ -156,4 +189,3 @@ nav {
     justify-content: flex-end;
     padding: 10px;
 }
-
